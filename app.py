@@ -10,8 +10,13 @@ col1, col2 = st.columns(2)
 
 with col1:
     if st.button("👨‍🏫 Mode Prof"):
-        st.switch_page("pages/prof.py")
+        st.switch_page("prof")
 
 with col2:
     if st.button("🎓 Mode Élève"):
-        st.switch_page("pages/eleve.py")
+        st.switch_page("eleve")
+
+
+
+
+
