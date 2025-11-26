@@ -1,0 +1,50 @@
+[
+  {
+    "question": "What is the capital of Canada?",
+    "type": "mcq",
+    "choices": ["Toronto", "Ottawa", "Vancouver", "Calgary"],
+    "answer": 1
+  },
+  {
+    "question": "Who created the Python programming language?",
+    "type": "mcq",
+    "choices": ["Linus Torvalds", "Guido van Rossum", "Bill Gates", "James Gosling"],
+    "answer": 1
+  },
+  {
+    "question": "Match the sentence with the correct ending.",
+    "type": "match",
+    "left": [
+      "The capital of France is ____",
+      "The city famous for Big Ben is ____",
+      "The capital of Japan is ____"
+    ],
+    "right": ["London", "Tokyo", "Paris", "Kyoto"],
+    "correct_pair": [
+      [0, 2],
+      [1, 0],
+      [2, 1]
+    ]
+  },
+  {
+    "question": "Match these languages with their countries.",
+    "type": "match",
+    "left": [
+      "Spanish is spoken in ____",
+      "Japanese is spoken in ____",
+      "Arabic is spoken in ____"
+    ],
+    "right": ["Japan", "Spain", "Morocco", "Mexico"],
+    "correct_pair": [
+      [0, 3],
+      [1, 0],
+      [2, 2]
+    ]
+  },
+  {
+    "question": "Which planet is known as the Red Planet?",
+    "type": "mcq",
+    "choices": ["Venus", "Mars", "Jupiter", "Saturn"],
+    "answer": 1
+  }
+]

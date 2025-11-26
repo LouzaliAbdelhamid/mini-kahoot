@@ -1,0 +1,35 @@
+body {
+    background-color: #46178f;
+    font-family: 'Segoe UI', sans-serif;
+    color: white;
+}
+
+.kahoot-box {
+    padding: 30px;
+    border-radius: 15px;
+    background-color: #5a1d9b;
+    text-align: center;
+    box-shadow: 0 0 20px rgba(255,255,255,0.2);
+}
+
+.answer-button {
+    font-size: 22px;
+    padding: 20px;
+    margin: 10px;
+    border-radius: 12px;
+    cursor: pointer;
+    font-weight: bold;
+    width: 100%;
+}
+
+.a { background: #e21b3c; }
+.b { background: #1368ce; }
+.c { background: #26890c; }
+.d { background: #ffa602; }
+
+.timer {
+    font-size: 40px;
+    font-weight: bold;
+    color: #ffdd00;
+    text-shadow: 2px 2px #000;
+}
