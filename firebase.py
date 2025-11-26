@@ -1,10 +1,11 @@
 import pyrebase
 from fire_config import firebaseConfig
 
+# Initialiser Pyrebase
 firebase = pyrebase.initialize_app(firebaseConfig)
 db = firebase.database()
 
-# Database references
+# Références pour les différentes données
 game_ref = db.child("game")
 players_ref = db.child("players")
 answers_ref = db.child("answers")
