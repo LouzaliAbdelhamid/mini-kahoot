@@ -20,15 +20,16 @@ if st.button("Create new game"):
     game_ref.set({
         "pin": pin,
         "current": -1,
-        "state": "waiting",  # possible states: waiting / in_question / show_results / podium
+        "state": "waiting",
         "total": len(QUESTIONS)
     })
     players_ref.set({})
     answers_ref.set({})
     stats_ref.set({})
     timer_ref.set({"time_left": 20})
+    st.experimental_rerun()  # recharge avec les nouvelles données
 
-# Fetch game data safely
+# Fetch game data
 game_snapshot = game_ref.get()
 game = game_snapshot.val() if game_snapshot and game_snapshot.val() else None
 
@@ -48,11 +49,14 @@ current = game.get("current", -1)
 if state == "waiting":
     header("Waiting for players…")
     st.write("Connected players:")
-    if players:
-        data = [{"Player": name, "Score": pts} for name, pts in players.items()]
+    data = []
+    for name, score in players.items():
+        if isinstance(score, (int, float)):
+            data.append({"Player": name, "Score": score})
+    if data:
         st.table(data)
     else:
-        st.write("*(No players yet)*")
+        st.write("*(Aucun joueur encore connecté)*")
     if st.button("Start game ▶️"):
         game_ref.update({"state": "in_question", "current": 0})
         timer_ref.set({"time_left": 20})
@@ -70,12 +74,11 @@ elif state == "in_question":
         for c in q["choices"]:
             st.write(f"- {c}")
     elif q["type"] == "match":
-        left, right = q["left"], q["right"]
         st.write("**Left:**")
-        for s in left:
+        for s in q["left"]:
             st.write(f"- {s}")
         st.write("**Right:**")
-        for s in right:
+        for s in q["right"]:
             st.write(f"- {s}")
 
     timer_snapshot = timer_ref.get()
