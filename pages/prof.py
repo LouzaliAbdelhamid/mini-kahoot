@@ -29,13 +29,12 @@ if st.button("Create new game"):
     timer_ref.set({"time_left": 20})
 
 game = game_ref.get()
-players = players_ref.get() or {}
-
 if not game:
-    st.warning("No game active.")
+    st.warning("Aucune partie active. Clique sur 'Create new game' pour démarrer.")
     st.stop()
 
-st.subheader(f"Game PIN: **{game['pin']}**")
+players = players_ref.get() or {}
+st.subheader(f"Game PIN: **{game.get('pin', '???')}**")
 
 state = game["state"]
 current = game["current"]
