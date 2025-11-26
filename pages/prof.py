@@ -28,21 +28,21 @@ if st.button("Create new game"):
     stats_ref.set({})
     timer_ref.set({"time_left": 20})
 
-
+# Fetch game data safely
 game_snapshot = game_ref.get()
-game = game_snapshot.val() if game_snapshot else None
+game = game_snapshot.val() if game_snapshot and game_snapshot.val() else None
 
 if not game:
     st.warning("Aucune partie active. Clique sur 'Create new game' pour démarrer.")
     st.stop()
 
 players_snapshot = players_ref.get()
-players = players_snapshot.val() if players_snapshot else {}
+players = players_snapshot.val() if players_snapshot and players_snapshot.val() else {}
 
-st.subheader(f"Game PIN: **{game['pin']}**")
+st.subheader(f"Game PIN: **{game.get('pin', '???')}**")
 
-state = game["state"]
-current = game["current"]
+state = game.get("state", "waiting")
+current = game.get("current", -1)
 
 # ---------- LOBBY ----------
 if state == "waiting":
@@ -59,12 +59,14 @@ if state == "waiting":
 
 # ---------- QUESTION ----------
 elif state == "in_question":
+    if current >= len(QUESTIONS):
+        st.error("Numéro de question invalide.")
+        st.stop()
     q = QUESTIONS[current]
     header(f"Question {current+1}/{game['total']}")
     sub(q["question"])
 
     if q["type"] == "mcq":
-        # Display choices
         for c in q["choices"]:
             st.write(f"- {c}")
     elif q["type"] == "match":
@@ -76,9 +78,9 @@ elif state == "in_question":
         for s in right:
             st.write(f"- {s}")
 
-    # Timer display (progress bar)
-    timer_data = timer_ref.get()
-    time_left = timer_data["time_left"]
+    timer_snapshot = timer_ref.get()
+    timer_data = timer_snapshot.val() if timer_snapshot else {}
+    time_left = timer_data.get("time_left", 0)
     st.progress(time_left / 20)
     st.write(f"⏳ Time left: **{time_left} sec**")
 
@@ -89,36 +91,30 @@ elif state == "in_question":
 elif state == "show_results":
     header("📊 Results")
     q = QUESTIONS[current]
-    # Show question text and correct answer
     sub(q["question"])
-    answers = answers_ref.child(str(current)).get() or {}
+    answers_snapshot = answers_ref.child(str(current)).get()
+    answers = answers_snapshot.val() if answers_snapshot else {}
     total_players = len(players)
     responded = len(answers)
 
     if q["type"] == "mcq":
-        # Calculate answer counts
         stats = {choice: 0 for choice in q["choices"]}
         for pseudo, ans in answers.items():
-            stats[ans] += 1
+            stats[ans] = stats.get(ans, 0) + 1
         correct_text = q["choices"][q["answer"]]
         correct_count = stats.get(correct_text, 0)
         st.write(f"**Correct answer:** {correct_text}")
         st.write(f"**Answered correctly:** {correct_count} / {total_players} players")
         st.write(f"**Responses received:** {responded} / {total_players} players")
+        st.bar_chart(stats)
     elif q["type"] == "match":
-        # Calculate answer counts for each possible pair
-        stats = {}
-        for l in q["left"]:
-            for r in q["right"]:
-                stats[f"{l} → {r}"] = 0
+        stats = {f"{l} → {r}": 0 for l in q["left"] for r in q["right"]}
         for pseudo, pair in answers.items():
             key = f"{q['left'][pair['left']]} → {q['right'][pair['right']]}"
             stats[key] += 1
-        # Determine correct match pair(s)
         correct_pairs = q["correct_pair"]
         if not isinstance(correct_pairs[0], list):
             correct_pairs = [correct_pairs]
-        # Display correct matches
         if len(correct_pairs) > 1:
             st.write("**Correct matches:**")
             correct_texts = []
@@ -135,25 +131,17 @@ elif state == "show_results":
             correct_count = stats.get(correct_text, 0)
         st.write(f"**Answered correctly:** {correct_count} / {total_players} players")
         st.write(f"**Responses received:** {responded} / {total_players} players")
-        # stats chart (match combos)
         st.bar_chart(stats)
     else:
-        # Unexpected question type
         st.warning("Unknown question type.")
-        stats = {}
-    # Display bar chart for answers (for MCQ, after computing stats)
-    if q["type"] == "mcq":
-        st.bar_chart(stats)
 
     st.subheader("Current ranking:")
-    # Display ranking sorted by score
     sorted_list = sorted(players.items(), key=lambda x: x[1], reverse=True)
     ranking_data = [{"Player": name, "Score": pts} for name, pts in sorted_list]
     st.table(ranking_data)
 
-    # Next question or finish game
     if current < game["total"] - 1:
-        if st.button("Next question ➡️"):
+        if st.button("Next question ➔"):
             game_ref.update({"state": "in_question", "current": current + 1})
             timer_ref.set({"time_left": 20})
     else:
@@ -167,7 +155,6 @@ elif state == "podium":
     if len(sorted_players) == 0:
         st.write("No players to display.")
     else:
-        # Display top 3 winners
         st.markdown(f"🥇 **1st: {sorted_players[0][0]}** — {sorted_players[0][1]} pts")
         if len(sorted_players) > 1:
             st.markdown(f"🥈 **2nd: {sorted_players[1][0]}** — {sorted_players[1][1]} pts")
